@@ -1,43 +1,45 @@
 /** @jsx jsx */
 import {jsx} from '@emotion/core'
 
-import './bootstrap'
+import * as React from 'react'
 import Tooltip from '@reach/tooltip'
-import {FaSearch} from 'react-icons/fa'
+import {FaSearch, FaTimes} from 'react-icons/fa'
 import {Input, BookListUL, Spinner} from './components/lib'
 import {BookRow} from './components/book-row'
 import {client} from './utils/api-client'
-import React from 'react'
+import * as colors from './styles/colors'
 
 function DiscoverBooksScreen() {
-  const [state, setState] = React.useState({
-    status: 'idle',
-    data: [],
-    query: '',
-    queried: false,
-  })
+  const [status, setStatus] = React.useState('idle')
+  const [data, setData] = React.useState(null)
+  const [error, setError] = React.useState(null)
+  const [query, setQuery] = React.useState('')
+  const [queried, setQueried] = React.useState(false)
 
-  const {status, data, query, queried} = state
+  const isLoading = status === 'loading'
+  const isSuccess = status === 'success'
+  const isError = status === 'error'
 
   React.useEffect(() => {
-    if (queried) {
-      setState(prevState => ({...prevState, status: 'loading'}))
-      client(
-        `books?query=${encodeURIComponent(encodeURIComponent(query))}`,
-      ).then(data => {
-        setState(prevState => ({
-          ...prevState,
-          status: 'success',
-          data,
-        }))
-      })
+    if (!queried) {
+      return
     }
+    setStatus('loading')
+    client(`books?query=${encodeURIComponent(query)}`)
+      .then(responseData => {
+        setData(responseData)
+        setStatus('success')
+      })
+      .catch(error => {
+        setError(error)
+        setStatus('error')
+      })
   }, [query, queried])
 
   function handleSearchSubmit(event) {
     event.preventDefault()
-    const {search} = event.target.elements
-    setState(prevState => ({...prevState, queried: true, query: search.value}))
+    setQueried(true)
+    setQuery(event.target.elements.search.value)
   }
 
   return (
@@ -61,8 +63,10 @@ function DiscoverBooksScreen() {
                 background: 'transparent',
               }}
             >
-              {status === 'loading' ? (
+              {isLoading ? (
                 <Spinner />
+              ) : isError ? (
+                <FaTimes aria-label="error" css={{color: colors.danger}} />
               ) : (
                 <FaSearch aria-label="search" />
               )}
@@ -71,7 +75,14 @@ function DiscoverBooksScreen() {
         </Tooltip>
       </form>
 
-      {status === 'success' ? (
+      {isError ? (
+        <div css={{color: colors.danger}}>
+          <p>There was an error:</p>
+          <pre>{error.message}</pre>
+        </div>
+      ) : null}
+
+      {isSuccess ? (
         data?.books?.length ? (
           <BookListUL css={{marginTop: 20}}>
             {data.books.map(book => (

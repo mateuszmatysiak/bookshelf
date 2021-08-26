@@ -1,7 +1,5 @@
 function proxy(app) {
-  app.get(/^\/$/, function (req, res) {
-    res.redirect('/discover')
-  })
+  app.get(/^\/$/, (req, res) => res.redirect('/discover'))
 }
 
 module.exports = proxy

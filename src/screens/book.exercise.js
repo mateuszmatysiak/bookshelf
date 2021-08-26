@@ -18,13 +18,12 @@ const loadingBook = {
 }
 
 function BookScreen({user}) {
-  const params = useParams()
-  const {bookId} = params
+  const {bookId} = useParams()
   const {data, run} = useAsync()
 
   React.useEffect(() => {
-    run(client(`books/${bookId}`, {token: user?.token}))
-  }, [run, bookId, user?.token])
+    run(client(`books/${bookId}`, {token: user.token}))
+  }, [run, bookId, user.token])
 
   const {title, author, coverImageUrl, publisher, synopsis} =
     data?.book ?? loadingBook

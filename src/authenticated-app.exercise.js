@@ -6,9 +6,9 @@ import {Routes, Route, Link} from 'react-router-dom'
 import {Button} from './components/lib'
 import * as mq from './styles/media-queries'
 import * as colors from './styles/colors'
-import {BookScreen} from './screens/book.exercise'
-import {NotFoundScreen} from './screens/not-found.exercise'
 import {DiscoverBooksScreen} from './screens/discover'
+import {BookScreen} from './screens/book'
+import {NotFoundScreen} from './screens/not-found'
 
 function AuthenticatedApp({user, logout}) {
   return (
@@ -110,15 +110,10 @@ function AppRoutes({user}) {
   return (
     <Routes>
       <Route path="/discover" element={<DiscoverBooksScreen user={user} />} />
-      <Route path="/book/:bookId" element={<BookScreen />} />
-      <Route path="/*" element={<NotFoundScreen />} />
+      <Route path="/book/:bookId" element={<BookScreen user={user} />} />
+      <Route path="*" element={<NotFoundScreen />} />
     </Routes>
   )
 }
 
 export {AuthenticatedApp}
-
-/*
-eslint
-  jsx-a11y/anchor-has-content: "off",
-*/

@@ -6,7 +6,7 @@ import debounceFn from 'debounce-fn'
 import {FaRegCalendarAlt} from 'react-icons/fa'
 import Tooltip from '@reach/tooltip'
 import {useParams} from 'react-router-dom'
-import {useQuery, useMutation, queryCache} from 'react-query'
+import {useMutation, queryCache} from 'react-query'
 import {client} from 'utils/api-client'
 import {formatDate} from 'utils/misc'
 import * as mq from 'styles/media-queries'
@@ -15,6 +15,8 @@ import {Textarea} from 'components/lib'
 import {Rating} from 'components/rating'
 import {StatusButtons} from 'components/status-buttons'
 import bookPlaceholderSvg from 'assets/book-placeholder.svg'
+import {useBook} from 'utils/books.exercise'
+import {useListItem} from 'utils/list-items.exercise'
 
 const loadingBook = {
   title: 'Loading...',
@@ -27,20 +29,9 @@ const loadingBook = {
 
 function BookScreen({user}) {
   const {bookId} = useParams()
+  const {data: book = loadingBook} = useBook(bookId, user)
 
-  const {data: book = loadingBook} = useQuery({
-    queryKey: ['book', {bookId}],
-    queryFn: () =>
-      client(`books/${bookId}`, {token: user.token}).then(data => data.book),
-  })
-
-  const {data: listItems} = useQuery({
-    queryKey: 'list-items',
-    queryFn: () =>
-      client(`list-items`, {token: user.token}).then(data => data.listItems),
-  })
-
-  const listItem = listItems?.find(li => li.bookId === bookId) ?? null
+  const listItem = useListItem(user, bookId)
 
   const {title, author, coverImageUrl, publisher, synopsis} = book
 
@@ -124,7 +115,7 @@ function ListItemTimeframe({listItem}) {
 }
 
 function NotesTextarea({listItem, user}) {
-  const [update] = useMutation(
+  const [mutate] = useMutation(
     updates =>
       client(`list-items/${updates.id}`, {
         method: 'PUT',
@@ -134,8 +125,8 @@ function NotesTextarea({listItem, user}) {
     {onSettled: () => queryCache.invalidateQueries('list-items')},
   )
   const debouncedMutate = React.useMemo(
-    () => debounceFn(update, {wait: 300}),
-    [update],
+    () => debounceFn(mutate, {wait: 300}),
+    [mutate],
   )
 
   function handleNotesChange(e) {

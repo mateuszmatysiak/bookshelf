@@ -1,15 +1,14 @@
 /** @jsx jsx */
 import {jsx} from '@emotion/core'
 
-import * as React from 'react'
 import Tooltip from '@reach/tooltip'
-import {FaSearch, FaTimes} from 'react-icons/fa'
-import {useQuery} from 'react-query'
-import {client} from 'utils/api-client'
-import * as colors from 'styles/colors'
-import {BookRow} from 'components/book-row'
-import {BookListUL, Spinner, Input} from 'components/lib'
 import bookPlaceholderSvg from 'assets/book-placeholder.svg'
+import {BookRow} from 'components/book-row'
+import {BookListUL, Input, Spinner} from 'components/lib'
+import * as React from 'react'
+import {FaSearch, FaTimes} from 'react-icons/fa'
+import * as colors from 'styles/colors'
+import {useBookSearch} from 'utils/books.exercise'
 
 const loadingBook = {
   title: 'Loading...',
@@ -29,15 +28,13 @@ function DiscoverBooksScreen({user}) {
   const [query, setQuery] = React.useState('')
   const [queried, setQueried] = React.useState(false)
 
-  const {data, error, isLoading, isError, isSuccess} = useQuery({
-    queryKey: ['bookSearch', {query}],
-    queryFn: () =>
-      client(`books?query=${encodeURIComponent(query)}`, {
-        token: user.token,
-      }).then(data => data.books),
-  })
-
-  const books = data ?? loadingBooks
+  const {
+    data: books = loadingBooks,
+    error,
+    isLoading,
+    isError,
+    isSuccess,
+  } = useBookSearch(query, user)
 
   function handleSearchSubmit(event) {
     event.preventDefault()

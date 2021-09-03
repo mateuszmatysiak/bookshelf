@@ -20,7 +20,7 @@ const visuallyHiddenCSS = {
 
 function Rating({listItem, user}) {
   const [isTabbing, setIsTabbing] = React.useState(false)
-  const [update, {isError, error}] = useUpdateListItem(user)
+  const [update, {error, isError}] = useUpdateListItem(user)
 
   React.useEffect(() => {
     function handleKeyDown(event) {
@@ -87,17 +87,6 @@ function Rating({listItem, user}) {
       </React.Fragment>
     )
   })
-
-  if (isError) {
-    return (
-      <ErrorMessage
-        error={error}
-        variant="inline"
-        css={{marginLeft: 6, fontSize: '0.7em'}}
-      />
-    )
-  }
-
   return (
     <div
       onClick={e => e.stopPropagation()}
@@ -111,6 +100,13 @@ function Rating({listItem, user}) {
       }}
     >
       <span css={{display: 'flex'}}>{stars}</span>
+      {isError ? (
+        <ErrorMessage
+          error={error}
+          variant="inline"
+          css={{marginLeft: 6, fontSize: '0.7em'}}
+        />
+      ) : null}
     </div>
   )
 }

@@ -11,10 +11,9 @@ import {useListItem, useUpdateListItem} from 'utils/list-items'
 import {formatDate} from 'utils/misc'
 import * as mq from 'styles/media-queries'
 import * as colors from 'styles/colors'
-import {Textarea} from 'components/lib'
+import {Textarea, ErrorMessage, Spinner} from 'components/lib'
 import {Rating} from 'components/rating'
 import {StatusButtons} from 'components/status-buttons'
-import {ErrorMessage} from 'components/lib'
 
 function BookScreen({user}) {
   const {bookId} = useParams()
@@ -103,7 +102,7 @@ function ListItemTimeframe({listItem}) {
 }
 
 function NotesTextarea({listItem, user}) {
-  const [mutate, {isError, error}] = useUpdateListItem(user)
+  const [mutate, {error, isError, isLoading}] = useUpdateListItem(user)
   const debouncedMutate = React.useMemo(
     () => debounceFn(mutate, {wait: 300}),
     [mutate],
@@ -111,16 +110,6 @@ function NotesTextarea({listItem, user}) {
 
   function handleNotesChange(e) {
     debouncedMutate({id: listItem.id, notes: e.target.value})
-  }
-
-  if (isError) {
-    return (
-      <ErrorMessage
-        error={error}
-        variant="inline"
-        css={{marginLeft: 6, fontSize: '0.7em'}}
-      />
-    )
   }
 
   return (
@@ -138,13 +127,32 @@ function NotesTextarea({listItem, user}) {
         >
           Notes
         </label>
+        {isError ? (
+          <ErrorMessage
+            error={error}
+            variant="inline"
+            css={{marginLeft: 6, fontSize: '0.7em'}}
+          />
+        ) : null}
       </div>
-      <Textarea
-        id="notes"
-        defaultValue={listItem.notes}
-        onChange={handleNotesChange}
-        css={{width: '100%', minHeight: 300}}
-      />
+      <div css={{position: 'relative'}}>
+        <Textarea
+          id="notes"
+          defaultValue={listItem.notes}
+          onChange={handleNotesChange}
+          css={{width: '100%', minHeight: 300}}
+        />
+        {isLoading ? (
+          <Spinner
+            css={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        ) : null}
+      </div>
     </React.Fragment>
   )
 }

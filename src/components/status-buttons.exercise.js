@@ -10,15 +10,15 @@ import {
   FaTimesCircle,
 } from 'react-icons/fa'
 import Tooltip from '@reach/tooltip'
-import {useAsync} from 'utils/hooks'
-import * as colors from 'styles/colors'
-import {CircleButton, Spinner} from './lib'
 import {
-  useCreateListItem,
   useListItem,
-  useRemoveListItem,
   useUpdateListItem,
-} from 'utils/list-items.exercise'
+  useRemoveListItem,
+  useCreateListItem,
+} from 'utils/list-items'
+import * as colors from 'styles/colors'
+import {useAsync} from 'utils/hooks'
+import {CircleButton, Spinner} from './lib'
 
 function TooltipButton({label, highlight, onClick, icon, ...rest}) {
   const {isLoading, isError, error, run} = useAsync()
@@ -55,9 +55,7 @@ function StatusButtons({user, book}) {
   const listItem = useListItem(user, book.id)
 
   const [update] = useUpdateListItem(user)
-
   const [remove] = useRemoveListItem(user)
-
   const [create] = useCreateListItem(user)
 
   return (

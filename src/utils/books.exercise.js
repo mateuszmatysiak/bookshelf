@@ -31,19 +31,17 @@ const getBookSearchConfig = (query, user) => ({
   },
 })
 
-const getBookConfig = (bookId, user) => ({
-  queryKey: ['book', {bookId}],
-  queryFn: () =>
-    client(`books/${bookId}`, {token: user.token}).then(data => data.book),
-})
-
 function useBookSearch(query, user) {
   const result = useQuery(getBookSearchConfig(query, user))
   return {...result, books: result.data ?? loadingBooks}
 }
 
 function useBook(bookId, user) {
-  const {data} = useQuery(getBookConfig(bookId, user))
+  const {data} = useQuery({
+    queryKey: ['book', {bookId}],
+    queryFn: () =>
+      client(`books/${bookId}`, {token: user.token}).then(data => data.book),
+  })
   return data ?? loadingBook
 }
 

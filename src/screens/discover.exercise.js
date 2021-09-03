@@ -8,6 +8,7 @@ import {useBookSearch} from 'utils/books'
 import * as colors from 'styles/colors'
 import {BookRow} from 'components/book-row'
 import {BookListUL, Spinner, Input} from 'components/lib'
+import {refetchBookSearchQuery} from 'utils/books.exercise'
 
 function DiscoverBooksScreen({user}) {
   const [query, setQuery] = React.useState('')
@@ -16,6 +17,10 @@ function DiscoverBooksScreen({user}) {
     query,
     user,
   )
+
+  React.useEffect(() => {
+    return () => refetchBookSearchQuery(user)
+  }, [user])
 
   function handleSearchSubmit(event) {
     event.preventDefault()

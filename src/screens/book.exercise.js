@@ -15,13 +15,11 @@ import {Spinner, Textarea, ErrorMessage} from 'components/lib'
 import {Rating} from 'components/rating'
 import {StatusButtons} from 'components/status-buttons'
 
-// 💣 remove the user prop
-function BookScreen({user}) {
+function BookScreen() {
   const {bookId} = useParams()
-  // 💣 remove the user argument
-  const book = useBook(bookId, user)
-  // 💣 remove the user argument
-  const listItem = useListItem(bookId, user)
+
+  const book = useBook(bookId)
+  const listItem = useListItem(bookId)
 
   const {title, author, coverImageUrl, publisher, synopsis} = book
 
@@ -64,23 +62,11 @@ function BookScreen({user}) {
                 minHeight: 100,
               }}
             >
-              {book.loadingBook ? null : (
-                <StatusButtons
-                  // 💣 remove the user prop here
-                  user={user}
-                  book={book}
-                />
-              )}
+              {book.loadingBook ? null : <StatusButtons book={book} />}
             </div>
           </div>
           <div css={{marginTop: 10, height: 46}}>
-            {listItem?.finishDate ? (
-              <Rating
-                // 💣 remove the user prop here
-                user={user}
-                listItem={listItem}
-              />
-            ) : null}
+            {listItem?.finishDate ? <Rating listItem={listItem} /> : null}
             {listItem ? <ListItemTimeframe listItem={listItem} /> : null}
           </div>
           <br />
@@ -88,11 +74,7 @@ function BookScreen({user}) {
         </div>
       </div>
       {!book.loadingBook && listItem ? (
-        <NotesTextarea
-          // 💣 remove the user prop here
-          user={user}
-          listItem={listItem}
-        />
+        <NotesTextarea listItem={listItem} />
       ) : null}
     </div>
   )
@@ -120,9 +102,10 @@ function ListItemTimeframe({listItem}) {
 function NotesTextarea({listItem, user}) {
   // 💣 remove the user argument here
   const [mutate, {error, isError, isLoading}] = useUpdateListItem(user)
-  const debouncedMutate = React.useMemo(() => debounceFn(mutate, {wait: 300}), [
-    mutate,
-  ])
+  const debouncedMutate = React.useMemo(
+    () => debounceFn(mutate, {wait: 300}),
+    [mutate],
+  )
 
   function handleNotesChange(e) {
     debouncedMutate({id: listItem.id, notes: e.target.value})

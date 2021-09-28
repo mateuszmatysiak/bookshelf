@@ -6,23 +6,25 @@ import * as auth from 'auth-provider'
 import {client} from 'utils/api-client'
 import {useAsync} from 'utils/hooks'
 import {FullPageSpinner, FullPageErrorFallback} from 'components/lib'
+import {queryCache} from 'react-query'
 
 async function getUser() {
   let user = null
 
   const token = await auth.getToken()
   if (token) {
-    const data = await client('me', {token})
+    const data = await client('bootstrap', {token})
     user = data.user
+    queryCache.setQueryData('list-items', data.listItems)
   }
 
   return user
 }
 
+const userPromise = getUser()
+
 const AuthContext = React.createContext()
 AuthContext.displayName = 'AuthContext'
-
-const userPromise = getUser()
 
 function AuthProvider(props) {
   const {
@@ -53,7 +55,7 @@ function AuthProvider(props) {
     auth.logout()
     setData(null)
   }, [setData])
-
+  console.log(user)
   const value = React.useMemo(
     () => ({user, login, logout, register}),
     [login, logout, register, user],
